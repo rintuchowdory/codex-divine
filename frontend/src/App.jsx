@@ -1,55 +1,37 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Sidebar from './components/Sidebar'
+import Dashboard from './pages/Dashboard'
+import Projects from './pages/Projects'
+import Tasks from './pages/Tasks'
+import AIChat from './pages/AIChat'
+import Login from './pages/Login'
+import './App.css'
 
-function App() {
-  const [apiData, setApiData] = useState(null);
+export default function App() {
+  const [token, setToken] = useState(localStorage.getItem('token'))
 
-  useEffect(() => {
-    fetch("http://localhost:8000/")
-      .then((res) => res.json())
-      .then((data) => setApiData(data))
-      .catch((err) => console.error(err));
-  }, []);
+  const logout = () => {
+    localStorage.removeItem('token')
+    setToken(null)
+  }
+
+  if (!token) return <Login onLogin={setToken} />
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white flex items-center justify-center">
-      <div className="text-center max-w-2xl">
-        <h1 className="text-6xl font-bold mb-6">
-          CODEX DIVINE
-        </h1>
-
-        <p className="text-gray-400 text-xl mb-8">
-          AI DevOps Assistant Platform
-        </p>
-
-        <div className="bg-white/10 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-          <h2 className="text-2xl mb-4 font-semibold">
-            Backend Status
-          </h2>
-
-          {apiData ? (
-            <div className="space-y-2 text-left">
-              <p>
-                <span className="font-bold">Project:</span>{" "}
-                {apiData.project}
-              </p>
-
-              <p>
-                <span className="font-bold">Status:</span>{" "}
-                {apiData.status}
-              </p>
-
-              <p>
-                <span className="font-bold">Message:</span>{" "}
-                {apiData.message}
-              </p>
-            </div>
-          ) : (
-            <p>Loading API...</p>
-          )}
-        </div>
+    <BrowserRouter>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#0f0f14' }}>
+        <Sidebar onLogout={logout} />
+        <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/ai" element={<AIChat />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </main>
       </div>
-    </div>
-  );
+    </BrowserRouter>
+  )
 }
-
-export default App;
